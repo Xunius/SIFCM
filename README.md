@@ -9,11 +9,12 @@ Folked from https://github.com/ab93/SIFCM
     * Indentation changed to 4 spaces.
     * Create class instance using image array instead of image file name.
     * Works on images of non-square shape.
-    * Expose parameters these parameters to class instance creation:
+    * Works on cluster numbers other than 3.
+    * Expose these parameters to class instance creation:
         * m: fuzziness parameter.
         * kernel_size, kernel_shape: define neighborhood relations.
         * lam: intuitionistic parameter?
-    * Add comments
+    * Add doc strings.
     * Correct a bug in the original code:
         at line 194 of original code:
 
