@@ -13,6 +13,7 @@ Folked from https://github.com/ab93/SIFCM
     * Expose these parameters to class instance creation:
         * m: fuzziness parameter.
         * kernel_size, kernel_shape: define neighborhood relations.
+        * q, power raised by the spatial function.
         * lam: intuitionistic parameter?
     * Add doc strings.
     * Correct a bug in the original code:

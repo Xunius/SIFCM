@@ -8,11 +8,13 @@ Changes made:
     * Indentation changed to 4 spaces.
     * Create class instance using image array instead of image file name.
     * Works on images of non-square shape.
-    * Expose parameters these parameters to class instance creation:
+    * Works on cluster numbers other than 3.
+    * Expose these parameters to class instance creation:
         * m: fuzziness parameter.
         * kernel_size, kernel_shape: define neighborhood relations.
+        * q, power raised by the spatial function.
         * lam: intuitionistic parameter?
-    * Add comments
+    * Add doc strings.
     * Correct a bug in the original code:
         at line 194 of original code:
 
@@ -21,6 +23,35 @@ Changes made:
             ```
 
         `j` should be `i`, according to their paper.
+
+
+E.g.
+
+    from skimage import data
+
+    img=data.imread('test_img/brain_noise.jpg',as_grey=True)
+
+    cluster = FCM(img,3,m=2,epsilon=.05,max_iter=100,kernel_shape='uniform',
+            kernel_size=5)
+    cluster.form_clusters()
+    cluster.calculate_scores()
+    result=cluster.result
+
+    #-------------------Plot------------------------
+    import matplotlib.pyplot as plt
+    fig=plt.figure(figsize=(12,8),dpi=100)
+
+    ax1=fig.add_subplot(1,2,1)
+    ax1.imshow(img)
+    ax1.set_title('image')
+
+    ax2=fig.add_subplot(1,2,2)
+    ax2.imshow(result)
+    ax2.set_title('segmentation')
+
+    plt.show(block=False)
+
+
 
 
 Author: guangzhi XU (xugzhi1987@gmail.com; guangzhi.xu@outlook.com)
@@ -81,7 +112,7 @@ def getGaussianElement(a,b,stda,stdb,quad=None):
 
 class FCM():
     def __init__(self,image,n_clusters,m=2,kernel_size=5,
-            kernel_shape='uniform',lam=0.5,epsilon=0.05,max_iter=300):
+            kernel_shape='uniform',q=3,lam=0.5,epsilon=0.05,max_iter=300):
         '''Spatial intuitionistic Fuzzy C-means clustering on image
 
         <image>: 2D array, grey scale image. Can be of int type or float.
@@ -92,6 +123,10 @@ class FCM():
         <kernel_shape>: str, 'uniform': equally weighted kernel function in
                                         summing weights in neighborhood.
                              'gaussian': gaussian weights for summing neighborhood.
+        <q>: float > 0, controls relative weights of initial membership and
+              the spatial function. A higher q weights spatial function more
+              and results in smoother segementions. If <q> == 0, same as a
+              standard Fuzzy C-Means.
         <lam>: float > 0, intuitionistic fuzzy parameter?
         <epsilon>: float > 0, threshold to check convergence.
         <max_iter>: int, max number of iterations.
@@ -111,6 +146,8 @@ class FCM():
             raise Exception("<kernel_size> needs to be positive integer.")
         if kernel_shape not in ['uniform', 'gaussian']:
             raise Exception("<kernel_shape> needs to be one of 'uniform', 'gaussian'.")
+        if q < 0:
+            raise Exception("<q> needs to be >= 0.")
         if lam <= 0:
             raise Exception("<lam> needs to be > 0.")
         if epsilon <= 0:
@@ -121,6 +158,7 @@ class FCM():
         self.m = m
         self.kernel_size = kernel_size
         self.kernel_shape = kernel_shape
+        self.q = q
         self.lam = lam
         self.epsilon = epsilon
         self.max_iter = max_iter
@@ -188,11 +226,8 @@ class FCM():
 
     def computeNew_U(self):
         '''Compute new weights after incorporating spatial and intuitionistic'''
-        p = 1
-        #q = 2
-        q = 3
         self.h = self.calculate_h()
-        num=self.U**p*self.h**q
+        num=self.U*self.h**self.q
         denom=num.sum(axis=1)
         denom=np.outer(denom,1+np.arange(self.n_clusters))
 
@@ -332,11 +367,10 @@ if __name__ == '__main__':
 
     from skimage import data
 
-    #img=data.imread('brainMRI.jpg',as_grey=True)
-    img=data.imread('brain_noise.jpg',as_grey=True)
+    img=data.imread('test_img/brain_noise.jpg',as_grey=True)
 
     cluster = FCM(img,3,m=2,epsilon=.05,max_iter=100,kernel_shape='uniform',
-            kernel_size=9)
+            kernel_size=5)
     cluster.form_clusters()
     cluster.calculate_scores()
     result=cluster.result
