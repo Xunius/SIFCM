@@ -12,7 +12,7 @@ Changes made:
     * Expose these parameters to class instance creation:
         * m: fuzziness parameter.
         * kernel_size, kernel_shape: define neighborhood relations.
-        * q, power raised by the spatial function.
+        * q: power raised by the spatial function.
         * lam: intuitionistic parameter?
     * Add doc strings.
     * Correct a bug in the original code:
@@ -23,33 +23,6 @@ Changes made:
             ```
 
         `j` should be `i`, according to their paper.
-
-
-E.g.
-
-    from skimage import data
-
-    img=data.imread('test_img/brain_noise.jpg',as_grey=True)
-
-    cluster = FCM(img,3,m=2,epsilon=.05,max_iter=100,kernel_shape='uniform',
-            kernel_size=5)
-    cluster.form_clusters()
-    cluster.calculate_scores()
-    result=cluster.result
-
-    #-------------------Plot------------------------
-    import matplotlib.pyplot as plt
-    fig=plt.figure(figsize=(12,8),dpi=100)
-
-    ax1=fig.add_subplot(1,2,1)
-    ax1.imshow(img)
-    ax1.set_title('image')
-
-    ax2=fig.add_subplot(1,2,2)
-    ax2.imshow(result)
-    ax2.set_title('segmentation')
-
-    plt.show(block=False)
 
 
 
